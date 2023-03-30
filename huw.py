@@ -10,6 +10,7 @@ from bson.objectid import ObjectId
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
 
+
 class HUWebshop(object):
     """ This class combines all logic behind the HU Example Webshop project. 
     Note that all rendering is performed within the templates themselves."""
@@ -222,7 +223,7 @@ class HUWebshop(object):
 
     """ ..:: Recommendation Functions ::.. """
 
-    def recommendations(self, count, categorys, rtype):
+    def recommendations(self, count, categories):
         """ This function returns the recommendations from the provided page
         and context, by sending a request to the designated recommendation
         service. At the moment, it only transmits the profile ID and the number

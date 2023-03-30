@@ -69,7 +69,7 @@ class HUWebshop(object):
         # We retrieve the categoryindex from the database when it is set.
         self.categoryindex = self.database.categoryindex.find_one({}, {'_id' : 0})
 
-        # In order to save time in the future, we flatten the category index once,
+        # In order to save time in future, we flatten the category index once,
         # and translate all values to and from an encoded, URL-friendly, legible
         # format.
         catlist = self.flattendict(self.categoryindex)
@@ -223,13 +223,13 @@ class HUWebshop(object):
 
     """ ..:: Recommendation Functions ::.. """
 
-    def recommendations(self, count, categories):
+    def recommendations(self, count, categories, rtype):
         """ This function returns the recommendations from the provided page
         and context, by sending a request to the designated recommendation
         service. At the moment, it only transmits the profile ID and the number
         of expected recommendations; to have more user information in the REST
         request, this function would have to change."""
-        resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categories+"/"+str(count))
+        resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categories+"/"+ rtype +"/"+str(count))
         if resp.status_code == 200:
             recs = eval(resp.content.decode())
             queryfilter = {"_id": {"$in": recs}}
@@ -259,10 +259,10 @@ class HUWebshop(object):
         prodlist = list(map(self.prepproduct, list(querycursor)))
         if len(nononescats) > 1:
             pagepath = "/producten/"+("/".join(nononescats))+"/"
-            category = nononescats[-1] + "@" + str(len(nononescats))
+            category = self.encodecategory(nononescats[-1]) + "@" + str(len(nononescats))
         elif len(nononescats) == 1:
             pagepath = "/producten/" + nononescats[0] + "/"
-            category = nononescats[0] + "@1"
+            category = self.encodecategory(nononescats[0]) + "@1"
         else:
             pagepath = "/producten/"
             category = "None"
@@ -273,7 +273,7 @@ class HUWebshop(object):
             'pend': skipindex + session['items_per_page'] if session['items_per_page'] > 0 else prodcount, \
             'prevpage': pagepath+str(page-1) if (page > 1) else False, \
             'nextpage': pagepath+str(page+1) if (session['items_per_page']*page < prodcount) else False, \
-            'r_products':self.recommendations(4, category), \
+            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[0]), \
             'r_type':list(self.recommendationtypes.keys())[0],\
             'r_string':list(self.recommendationtypes.values())[0]\
             })
@@ -283,12 +283,12 @@ class HUWebshop(object):
         id provided. """
         product = self.database.products.find_one({"_id":str(productid)})
         if product['sub_category'] is not None:
-            category = product['sub_category']
+            category = self.encodecategory(product['sub_category']) + "@2"
         else:
-            category = product['category']
+            category = self.encodecategory(product['category']) + "@1"
         return self.renderpackettemplate('productdetail.html', {'product':product,\
             'prepproduct':self.prepproduct(product),\
-            'r_products':self.recommendations(4,category), \
+            'r_products':self.recommendations(4,category, list(self.recommendationtypes.keys())[1]), \
             'r_type':list(self.recommendationtypes.keys())[1],\
             'r_string':list(self.recommendationtypes.values())[1]})
 
@@ -305,9 +305,12 @@ class HUWebshop(object):
             product = self.prepproduct(product_data)
             product["itemcount"] = tup[1]
             i.append(product)
-        print(categories)
+        if categories == {}:
+            category = "None"
+        else:
+            category = self.encodecategory(max(categories,key=categories.get)) + "@1"
         return self.renderpackettemplate('shoppingcart.html',{'itemsincart':i,\
-            'r_products':self.recommendations(4,self.encodecategory(max(categories,key=categories.get)) + "@1"), \
+            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[2]), \
             'r_type':list(self.recommendationtypes.keys())[2],\
             'r_string':list(self.recommendationtypes.values())[2]})
 

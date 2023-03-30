@@ -32,7 +32,7 @@ class Recom(Resource):
     the webshop. At the moment, the API simply returns a random set of products
     to recommend."""
 
-    def get(self, profileid, categories, count):
+    def get(self, profileid, categories, rtype,count):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
         cursor = conn.cursor()
@@ -50,10 +50,10 @@ class Recom(Resource):
         prodids = [row[0] for row in cursor.fetchall()]
         cursor.close()
         print(categories)
-        print(prodids)
+        print(rtype)
         return prodids, 200
 
 
 # This method binds the Recom class to the REST API, to parse specifically
 # requests in the format described below.
-api.add_resource(Recom, "/<string:profileid>/<string:categories>/<int:count>")
+api.add_resource(Recom, "/<string:profileid>/<string:categorys>/<string:rtype>/<int:count>")

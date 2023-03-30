@@ -17,7 +17,7 @@ envvals = ["PGUSER","PGPASSWORD","PGHOST","PGPORT","PGDATABASE"]
 dbstring = 'dbname={4} user={0} password={1} host={2} port={3}'
 
 # Since we are asked to pass a class rather than an instance of the class to the
-# add_resource method, we open the connection to the database outside of the
+# add_resource method, we open the connection to the database outside the
 # Recom class.
 load_dotenv()
 if os.getenv(envvals[0]) is not None:
@@ -46,7 +46,7 @@ class Recom(Resource):
             cursor.execute('''SELECT product_id 
                               FROM product 
                               ORDER BY random() 
-                              LIMIT %s;''', (count,)) #change this
+                              LIMIT %s;''', (count,))  # change this
         prodids = [row[0] for row in cursor.fetchall()]
         cursor.close()
         print(categories)

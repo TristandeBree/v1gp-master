@@ -260,11 +260,12 @@ class HUWebshop(object):
             pagepath = "/producten/"+("/".join(nononescats))+"/"
             category = nononescats[-1] + "@" + str(len(nononescats))
         elif len(nononescats) == 1:
-            pagepath = "/producten/"
+            pagepath = "/producten/" + nononescats[0] + "/"
             category = nononescats[0] + "@1"
         else:
             pagepath = "/producten/"
             category = "None"
+        print(pagepath)
         return self.renderpackettemplate('products.html', {'products': prodlist, \
             'productcount': prodcount, \
             'pstart': skipindex + 1, \
@@ -280,19 +281,25 @@ class HUWebshop(object):
         """ This function renders the product detail page based on the product
         id provided. """
         product = self.database.products.find_one({"_id":str(productid)})
+        if product['sub_category'] is not None:
+            category = product['sub_category']
+        else:
+            category = product['category']
         return self.renderpackettemplate('productdetail.html', {'product':product,\
             'prepproduct':self.prepproduct(product),\
-            'r_products':self.recommendations(4,product['category']), \
+            'r_products':self.recommendations(4,category), \
             'r_type':list(self.recommendationtypes.keys())[1],\
             'r_string':list(self.recommendationtypes.values())[1]})
 
     def shoppingcart(self):
         """ This function renders the shopping cart for the user."""
         i = []
+        print(session['shopping_cart'])
         for tup in session['shopping_cart']:
             product = self.prepproduct(self.database.products.find_one({"_id":str(tup[0])}))
             product["itemcount"] = tup[1]
             i.append(product)
+        print(i)
         return self.renderpackettemplate('shoppingcart.html',{'itemsincart':i,\
             'r_products':self.recommendations(4,i[0]), \
             'r_type':list(self.recommendationtypes.keys())[2],\

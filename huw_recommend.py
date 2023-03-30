@@ -3,6 +3,8 @@ from flask_restful import Api, Resource, reqparse
 import os
 import psycopg2
 from dotenv import load_dotenv
+from random import sample
+
 with open('password.txt', 'r') as f:
     password = f.read()
 
@@ -30,21 +32,28 @@ class Recom(Resource):
     the webshop. At the moment, the API simply returns a random set of products
     to recommend."""
 
-    def get(self, profileid, categorys, count):
+    def get(self, profileid, categories, count):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
         cursor = conn.cursor()
-        if categorys == 'None':
-            cursor.execute("SELECT product_id FROM product ORDER BY RANDOM() LIMIT %s;", (count,))
+        if categories == 'None':
+            cursor.execute('''SELECT product_id 
+                              FROM product 
+                              WHERE recommendable = True 
+                              ORDER BY RANDOM() 
+                              LIMIT %s;''', (count,))
         else:
-            cursor.execute("select product_id from product order by random() limit %s;", (count,)) #change this
+            cursor.execute('''SELECT product_id 
+                              FROM product 
+                              ORDER BY random() 
+                              LIMIT %s;''', (count,)) #change this
         prodids = [row[0] for row in cursor.fetchall()]
         cursor.close()
-        print(categorys)
+        print(categories)
         print(prodids)
         return prodids, 200
 
 
 # This method binds the Recom class to the REST API, to parse specifically
 # requests in the format described below.
-api.add_resource(Recom, "/<string:profileid>/<string:categorys>/<int:count>")
+api.add_resource(Recom, "/<string:profileid>/<string:categories>/<int:count>")

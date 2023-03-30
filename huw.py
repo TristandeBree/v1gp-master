@@ -10,6 +10,7 @@ from bson.objectid import ObjectId
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
 
+
 class HUWebshop(object):
     """ This class combines all logic behind the HU Example Webshop project. 
     Note that all rendering is performed within the templates themselves."""
@@ -68,7 +69,7 @@ class HUWebshop(object):
         # We retrieve the categoryindex from the database when it is set.
         self.categoryindex = self.database.categoryindex.find_one({}, {'_id' : 0})
 
-        # In order to save time in future, we flatten the category index once,
+        # In order to save time in the future, we flatten the category index once,
         # and translate all values to and from an encoded, URL-friendly, legible
         # format.
         catlist = self.flattendict(self.categoryindex)
@@ -222,13 +223,13 @@ class HUWebshop(object):
 
     """ ..:: Recommendation Functions ::.. """
 
-    def recommendations(self, count, categorys):
+    def recommendations(self, count, categories):
         """ This function returns the recommendations from the provided page
         and context, by sending a request to the designated recommendation
         service. At the moment, it only transmits the profile ID and the number
         of expected recommendations; to have more user information in the REST
         request, this function would have to change."""
-        resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categorys+"/"+str(count))
+        resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categories+"/"+str(count))
         if resp.status_code == 200:
             recs = eval(resp.content.decode())
             queryfilter = {"_id": {"$in": recs}}
@@ -282,9 +283,9 @@ class HUWebshop(object):
         id provided. """
         product = self.database.products.find_one({"_id":str(productid)})
         if product['sub_category'] is not None:
-            category = product['sub_category']
+            category = product['sub_category'] + '@2'
         else:
-            category = product['category']
+            category = product['category'] + '@1'
         return self.renderpackettemplate('productdetail.html', {'product':product,\
             'prepproduct':self.prepproduct(product),\
             'r_products':self.recommendations(4,category), \

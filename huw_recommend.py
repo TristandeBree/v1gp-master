@@ -34,7 +34,10 @@ class Recom(Resource):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
         cursor = conn.cursor()
-        cursor.execute("SELECT product_id FROM product ORDER BY RANDOM() LIMIT %s;", (count,))
+        if categorys == 'None':
+            cursor.execute("SELECT product_id FROM product ORDER BY RANDOM() LIMIT %s;", (count,))
+        else:
+            cursor.execute("select product_id from product order by random() limit %s;", (count,)) #change this
         prodids = [row[0] for row in cursor.fetchall()]
         cursor.close()
         print(categorys)

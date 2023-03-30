@@ -256,18 +256,22 @@ class HUWebshop(object):
         querycursor.skip(skipindex)
         querycursor.limit(session['items_per_page'])
         prodlist = list(map(self.prepproduct, list(querycursor)))
-        print(nononescats)
         if len(nononescats) > 1:
             pagepath = "/producten/"+("/".join(nononescats))+"/"
+            category = nononescats[-1] + "@" + str(len(nononescats))
+        elif len(nononescats) == 1:
+            pagepath = "/producten/"
+            category = nononescats[0] + "@1"
         else:
             pagepath = "/producten/"
+            category = "None"
         return self.renderpackettemplate('products.html', {'products': prodlist, \
             'productcount': prodcount, \
             'pstart': skipindex + 1, \
             'pend': skipindex + session['items_per_page'] if session['items_per_page'] > 0 else prodcount, \
             'prevpage': pagepath+str(page-1) if (page > 1) else False, \
             'nextpage': pagepath+str(page+1) if (session['items_per_page']*page < prodcount) else False, \
-            'r_products':self.recommendations(4, nononescats[-1] +"@"+str(len(nononescats))), \
+            'r_products':self.recommendations(4, category), \
             'r_type':list(self.recommendationtypes.keys())[0],\
             'r_string':list(self.recommendationtypes.values())[0]\
             })
@@ -278,7 +282,7 @@ class HUWebshop(object):
         product = self.database.products.find_one({"_id":str(productid)})
         return self.renderpackettemplate('productdetail.html', {'product':product,\
             'prepproduct':self.prepproduct(product),\
-            'r_products':self.recommendations(4,product), \
+            'r_products':self.recommendations(4,product['category']), \
             'r_type':list(self.recommendationtypes.keys())[1],\
             'r_string':list(self.recommendationtypes.values())[1]})
 

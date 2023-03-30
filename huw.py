@@ -283,9 +283,9 @@ class HUWebshop(object):
         id provided. """
         product = self.database.products.find_one({"_id":str(productid)})
         if product['sub_category'] is not None:
-            category = product['sub_category'] + '@2'
+            category = product['sub_category']
         else:
-            category = product['category'] + '@1'
+            category = product['category']
         return self.renderpackettemplate('productdetail.html', {'product':product,\
             'prepproduct':self.prepproduct(product),\
             'r_products':self.recommendations(4,category), \
@@ -295,14 +295,19 @@ class HUWebshop(object):
     def shoppingcart(self):
         """ This function renders the shopping cart for the user."""
         i = []
-        print(session['shopping_cart'])
+        categories = {}
         for tup in session['shopping_cart']:
-            product = self.prepproduct(self.database.products.find_one({"_id":str(tup[0])}))
+            product_data = self.database.products.find_one({"_id":str(tup[0])})
+            if product_data['category'] in categories.keys():
+                categories[product_data['category']] += tup[1]
+            else:
+                categories[product_data['category']] = tup[1]
+            product = self.prepproduct(product_data)
             product["itemcount"] = tup[1]
             i.append(product)
-        print(i)
+        print(categories)
         return self.renderpackettemplate('shoppingcart.html',{'itemsincart':i,\
-            'r_products':self.recommendations(4,i[0]), \
+            'r_products':self.recommendations(4,self.encodecategory(max(categories,key=categories.get)) + "@1"), \
             'r_type':list(self.recommendationtypes.keys())[2],\
             'r_string':list(self.recommendationtypes.values())[2]})
 

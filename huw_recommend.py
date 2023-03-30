@@ -32,7 +32,7 @@ class Recom(Resource):
     the webshop. At the moment, the API simply returns a random set of products
     to recommend."""
 
-    def get(self, profileid, categorys, rtype,count):
+    def get(self, profileid, categories, rtype,count):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
         cursor = conn.cursor()
@@ -49,7 +49,7 @@ class Recom(Resource):
                               LIMIT %s;''', (count,)) #change this
         prodids = [row[0] for row in cursor.fetchall()]
         cursor.close()
-        print(categorys)
+        print(categories)
         print(rtype)
         return prodids, 200
 

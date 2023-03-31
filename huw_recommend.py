@@ -57,7 +57,6 @@ class Recom(Resource):
         categories = [row[0] for row in cursor.fetchall()]
         for category in categories:
             decode_dict[self.encodecategory(category)] = category
-
         return decode_dict
 
     def get(self, profileid, categories, rtype, count):
@@ -72,19 +71,21 @@ class Recom(Resource):
                                LIMIT {count};
             ''')
         else:
-            category_name, category_number = categories.split('@')
+            category_name_enc, category_number = categories.split('@')
             # Add 'sub_' category_number-1 times before adding category
             if not category_number:
                 category_type = 'product_id'
             else:
                 category_type = '' + ('sub_' * (int(category_number)-1)) + 'category'
+                decoder = self.decode_dict(cursor, category_type)
+                category_name_dec = decoder[category_name_enc]
             match rtype:
                 # Anderen kochten ook
                 case 'popular':
                     cursor.execute(f'''SELECT orders.productproduct_id, COUNT(orders.productproduct_id)
                                        FROM orders
                                        JOIN product on orders.productproduct_id = product.product_id
-                                       WHERE recommendable = True AND {category_type} = {category_name}
+                                       WHERE recommendable = True AND {category_type} = '{category_name_dec}'
                                        GROUP BY orders.productproduct_id
                                        ORDER BY count DESC
                                        LIMIT {count};
@@ -104,7 +105,7 @@ class Recom(Resource):
                     # ''', (count,)) TODO: brand/product_id doorgeven
                     cursor.execute(f'''SELECT product_id
                                        FROM product
-                                       WHERE recommendable = True AND {category_type} = {category_name}
+                                       WHERE recommendable = True AND {category_type} = '{category_name_dec}'
                                        ORDER BY RANDOM()
                                        LIMIT {count};
                     ''')
@@ -112,7 +113,7 @@ class Recom(Resource):
                 case 'combination':
                     cursor.execute(f'''SELECT sessionssession_id
                                        FROM orders
-                                       WHERE productproduct_id = {category_name}
+                                       WHERE productproduct_id = '{category_name_dec}'
                                        LIMIT 10;
                     ''')
                     sessions_bought_product = cursor.fetchall()

@@ -236,6 +236,7 @@ class HUWebshop(object):
             querycursor = self.database.products.find(queryfilter, self.productfields)
             resultlist = list(map(self.prepproduct, list(querycursor)))
             return resultlist
+        print("200 melding")
         return []
 
     """ ..:: Full Page Endpoints ::.. """
@@ -284,9 +285,9 @@ class HUWebshop(object):
         id provided. """
         product = self.database.products.find_one({"_id":str(productid)})
         if product['sub_category'] is not None:
-            category = product['sub_category'] + "@2"
+            category = self.encodecategory(product['sub_category']) + "@2"
         else:
-            category = product['category'] + "@1"
+            category = self.encodecategory(product['category']) + "@1"
         return self.renderpackettemplate('productdetail.html', {'product':product,\
             'prepproduct':self.prepproduct(product),\
             'r_products':self.recommendations(4,category, list(self.recommendationtypes.keys())[1]), \

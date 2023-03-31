@@ -73,7 +73,7 @@ class Recom(Resource):
         else:
             category_name_enc, category_number = categories.split('@')
             # Add 'sub_' category_number-1 times before adding category
-            if not category_number:
+            if category_number == '0':
                 category_type = 'product_id'
             else:
                 category_type = '' + ('sub_' * (int(category_number)-1)) + 'category'

@@ -48,7 +48,7 @@ class Recom(Resource):
             if not category_number:
                 category_type = 'product_id'
             else:
-                category_type = '' + ('sub_' * (category_number-1)) + 'category'
+                category_type = '' + ('sub_' * (int(category_number)-1)) + 'category'
             match rtype:
                 # Anderen kochten ook
                 case 'popular':

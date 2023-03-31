@@ -1,3 +1,4 @@
+import urllib.parse
 from flask import Flask, request, session, render_template, redirect, url_for, g
 from flask_restful import Api, Resource, reqparse
 import os
@@ -31,6 +32,34 @@ class Recom(Resource):
     """ This class represents the REST API that provides the recommendations for
     the webshop. At the moment, the API simply returns a random set of products
     to recommend."""
+    def encodecategory(self,c):
+        """ This helper function encodes any category name into a URL-friendly
+        string, making sensible and human-readable substitutions. """
+        c = c.lower()
+        c = c.replace(" ","-")
+        c = c.replace(",","")
+        c = c.replace("'","")
+        c = c.replace("&","en")
+        c = c.replace("ë","e")
+        c = c.replace("=","-is-")
+        c = c.replace("%","-procent-")
+        c = c.replace("--","-")
+        c = urllib.parse.quote(c)
+        return c
+
+    def decode_dict(self,cursor,cat_type):
+        decode_dict = {}
+        cursor.execute(
+            f'''
+            Select distinct {cat_type} from product
+            where {cat_type} is not null
+            '''
+        )
+        categories = [row[0] for row in cursor.fetchall()]
+        for category in categories:
+            decode_dict[self.encodecategory(category)] = category
+
+        return decode_dict
 
     def get(self, profileid, categories, rtype,count):
         """ This function represents the handler for GET requests coming in

@@ -295,20 +295,20 @@ class HUWebshop(object):
     def shoppingcart(self):
         """ This function renders the shopping cart for the user."""
         i = []
-        categories = {}
+        products = {}
         for tup in session['shopping_cart']:
             product_data = self.database.products.find_one({"_id":str(tup[0])})
-            if product_data['category'] in categories.keys():
-                categories[product_data['category']] += tup[1]
+            if tup[0] in products.keys():
+                products[tup[0]] += tup[1]
             else:
-                categories[product_data['category']] = tup[1]
+                products[tup[0]] = tup[1]
             product = self.prepproduct(product_data)
             product["itemcount"] = tup[1]
             i.append(product)
-        if categories == {}:
+        if products == {}:
             category = "None"
         else:
-            category = self.encodecategory(max(categories,key=categories.get)) + "@1"
+            category = self.encodecategory(max(products,key=products.get)) + "@0"
         return self.renderpackettemplate('shoppingcart.html',{'itemsincart':i,\
             'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[2]), \
             'r_type':list(self.recommendationtypes.keys())[2],\

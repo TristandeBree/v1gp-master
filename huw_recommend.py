@@ -45,7 +45,10 @@ class Recom(Resource):
         else:
             category_name, category_number = categories.split('@')
             # Add 'sub_' category_number-1 times before adding category
-            category_type = ''.join('sub_' for i in range(0, category_number-1)) + 'category'
+            if not category_number:
+                category_type = 'product_id'
+            else:
+                category_type = '' + ('sub_' * (category_number-1)) + 'category'
             match rtype:
                 # Anderen kochten ook
                 case 'popular':
@@ -78,8 +81,23 @@ class Recom(Resource):
                     ''')
                 # Combineert goed met
                 case 'combination':
-                    cursor.execute(f'''SELECT ord.sessionssession_id
+                    cursor.execute(f'''SELECT sessionssession_id
                                        FROM orders
+                                       WHERE productproduct_id = {category_name}
+                                       LIMIT 10;
+                    ''')
+                    sessions_bought_product = cursor.fetchall()
+                    relevant_sessions = ''''''
+                    for session in sessions_bought_product:
+                        relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
+                    if relevant_sessions != '''''':
+                        relevant_sessions = '''AND ''' + relevant_sessions
+                    cursor.execute(f'''SELECT productproduct_id
+                                       FROM orders
+                                       JOIN product AS prod ON orders.productproduct_id = prod.product_id
+                                       WHERE prod.recommendable = True {relevant_sessions}
+                                       ORDER BY Random()
+                                       LIMIT {count};
                     ''')
                 # Passend bij uw gedrag
                 case 'behaviour':

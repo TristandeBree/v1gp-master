@@ -100,6 +100,26 @@
 			</div>
 			{% endblock %}
 		</div>
+        <div id="content2" class="centerstage">
+			{% block content2 %}{{ contenttext }}{% endblock %}
+			{% block suggestionbox2 %}
+			{% if packet.r_products2 %}
+			<h4>{{ packet.r_string2 }}</h4>
+			{% endif %}
+			<div id="recommendedproducts">
+				{% for product in packet.r_products2 %}
+					<div class="productpageblock hublueborder">
+						<a href="/productdetail/{{ product.id }}">
+							<div class="productname">{{ product.name }}</div>
+							<div class="productprice">{{ product.price }}</div>
+							<div class="productdiscount">{{ product.discount }}</div>
+						</a>
+						<a href="#" function="add-to-shopping-cart" class="recommended-addtocart button hured" productid="{{ product.id }}">In winkelmand</a>
+					</div>
+				{% endfor %}
+			</div>
+			{% endblock %}
+		</div>
 		{% block footer %}
 		<div id="footer">
 			<div id="bottombarbackground" class="hublue">

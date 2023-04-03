@@ -269,15 +269,20 @@ class HUWebshop(object):
             pagepath = "/producten/"
             category = "None"
         print(pagepath)
-        return self.renderpackettemplate('products.html', {'products': prodlist, \
-            'productcount': prodcount, \
-            'pstart': skipindex + 1, \
-            'pend': skipindex + session['items_per_page'] if session['items_per_page'] > 0 else prodcount, \
-            'prevpage': pagepath+str(page-1) if (page > 1) else False, \
-            'nextpage': pagepath+str(page+1) if (session['items_per_page']*page < prodcount) else False, \
-            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[0]), \
-            'r_type':list(self.recommendationtypes.keys())[0],\
-            'r_string':list(self.recommendationtypes.values())[0]\
+        return self.renderpackettemplate('products.html', {
+            'products': prodlist,
+            'productcount': prodcount,
+            'pstart': skipindex + 1,
+            'pend': skipindex + session['items_per_page'] if session['items_per_page'] > 0 else prodcount,
+            'prevpage': pagepath+str(page-1) if (page > 1) else False,
+            'nextpage': pagepath+str(page+1) if (session['items_per_page']*page < prodcount) else False,
+            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[0]),
+            'r_type':list(self.recommendationtypes.keys())[0],
+            'r_string':list(self.recommendationtypes.values())[0],
+            # Second row of recommendations
+            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
+            'r_type2': list(self.recommendationtypes.keys())[4],
+            'r_string2': list(self.recommendationtypes.values())[4]
             })
 
     def productdetail(self, productid):
@@ -356,5 +361,6 @@ class HUWebshop(object):
         return '{"success":true, "refurl":"'+request.form.get('refurl')+'"}'
 
     # TODO: add @app.errorhandler(404) and @app.errorhandler(405)
+
 
 huw = HUWebshop(app)

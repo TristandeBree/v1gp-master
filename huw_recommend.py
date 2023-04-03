@@ -137,7 +137,7 @@ class Recom(Resource):
                                        JOIN sessions AS ses ON iden.bu_id = ses.bu_id
                                        JOIN event AS ev ON ses.session_id = ev.sessionssession_id
                                        JOIN product AS prod ON ev.event_product = prod.product_id
-                                       WHERE prod.recommendable = True AND prof.profile_id = {profileid}
+                                       WHERE prod.recommendable = True AND prof.profile_id = '{profileid}'
                                        LIMIT {count};
                     ''') # TODO: Minimaal 4 garanderen
                 # Persoonlijk aanbevolen
@@ -147,7 +147,7 @@ class Recom(Resource):
                                        JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
                                        JOIN sessions AS ses ON iden.bu_id = ses.bu_id
                                        JOIN preferences AS pref ON ses.session_id = pref.Sessionssession_id
-                                       WHERE prof.profile_id = {profileid}
+                                       WHERE prof.profile_id = '{profileid}'
                                        LIMIT {count};
                     ''')
                     preferences = cursor.fetchall()

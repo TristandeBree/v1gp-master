@@ -95,21 +95,9 @@ class Recom(Resource):
                                        LIMIT {count};
                     ''')
                 # Soortgelijke producten
-                case 'similar':
-                    # cursor.execute(f'''SELECT product_id
-                    #                    FROM product
-                    #                    WHERE product_id = {pro}
-                    # ''')
-                    # cursor.execute(f'''SELECT product_id
-                    #                    FROM product
-                    #                    WHERE recommendable = True
-                    #                    ORDER BY CASE WHEN brand = 'Aquafresh' THEN 1
-                 	# 	                             ELSE 2
-					# 	                             END
-                    # ''', (count,)) TODO: brand/product_id doorgeven
                     cursor.execute(f'''SELECT product_id
                                        FROM product
-                                       WHERE recommendable = True AND {category_type} = '{category_name_dec}'
+                                       WHERE recommendable = True AND {category_type} = '{category_name_enc}'
                                        ORDER BY RANDOM()
                                        LIMIT {count};
                     ''')
@@ -157,7 +145,8 @@ class Recom(Resource):
                                        WHERE prof.profile_id = '{profileid}'
                                        LIMIT {count};
                     ''')
-                    preferences = [row[0] for row in cursor.fetchall()]
+                    preferences = [[row[0], row[1]] for row in cursor.fetchall()]
+                    print(preferences)
                     preferred = ''''''
                     for preference in preferences:
                         if preferred == '''''':

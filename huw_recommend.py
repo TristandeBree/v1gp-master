@@ -71,6 +71,10 @@ class Recom(Resource):
                                LIMIT {count};
             ''')
         else:
+            if '~' in categories:
+                s = list(categories)
+                s[categories.index('~')] = "/"
+                categories = "".join(s)
             category_name_enc, category_number = categories.split('@')
             # Add 'sub_' category_number-1 times before adding category
             if category_number == '0':
@@ -113,13 +117,16 @@ class Recom(Resource):
                 case 'combination':
                     cursor.execute(f'''SELECT sessionssession_id
                                        FROM orders
-                                       WHERE productproduct_id = '{category_name_dec}'
+                                       WHERE productproduct_id = '{category_name_enc}'
                                        LIMIT 10;
                     ''')
-                    sessions_bought_product = cursor.fetchall()
+                    sessions_bought_product = [row[0] for row in cursor.fetchall()]
                     relevant_sessions = ''''''
                     for session in sessions_bought_product:
-                        relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
+                        if relevant_sessions == '''''':
+                            relevant_sessions += f'''orders.sessionssession_id = '{session}' '''
+                        else:
+                            relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
                     if relevant_sessions != '''''':
                         relevant_sessions = '''AND ''' + relevant_sessions
                     cursor.execute(f'''SELECT productproduct_id
@@ -150,10 +157,13 @@ class Recom(Resource):
                                        WHERE prof.profile_id = {profileid}
                                        LIMIT {count};
                     ''')
-                    preferences = cursor.fetchall()
+                    preferences = [row[0] for row in cursor.fetchall()]
                     preferred = ''''''
                     for preference in preferences:
-                        preferred += f'''OR {preference[0]} = '{preference[1]}' '''
+                        if preferred == '''''':
+                            preferred += f'''{preference[0]} = '{preference[1]}' '''
+                        else:
+                            preferred += f'''OR {preference[0]} = '{preference[1]}' '''
                     if preferred != '''''':
                         preferred = '''AND ''' + preferred
                     cursor.execute(f'''SELECT product_id

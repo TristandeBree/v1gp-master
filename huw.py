@@ -311,6 +311,11 @@ class HUWebshop(object):
             category = "None"
         else:
             category = self.encodecategory(max(products,key=products.get)) + "@0"
+
+        if '/' in category:
+            s = list(category)
+            s[category.index('/')] = "~"
+            category = "".join(s)
         return self.renderpackettemplate('shoppingcart.html',{'itemsincart':i,\
             'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[2]), \
             'r_type':list(self.recommendationtypes.keys())[2],\

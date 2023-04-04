@@ -111,7 +111,7 @@ class HUWebshop(object):
         """ Within this function, we compose a nested dictionary of all 
         categories that occur within the database's products collection, and 
         save it to the categoryindex collection. """
-        pcatentries = self.database.products.find({},self.catlevels)
+        pcatentries = self.database.products.find({}, self.catlevels)
         index = {}
         for entry in pcatentries:
             self.reccatindex(index, entry, 0, len(self.catlevels)-1)
@@ -119,7 +119,7 @@ class HUWebshop(object):
             self.reccatcount(k, v, 0, len(self.catlevels)-1)
         self.database.categoryindex.insert_one(index)
 
-    def reccatindex(self,d,e,l,m):
+    def reccatindex(self, d, e, l, m):
         """ This subfunction of createcategoryindex() sets up the base structure
         (tree) of the categories and subcategories, leaving leaves as empty 
         dicts."""
@@ -129,9 +129,9 @@ class HUWebshop(object):
         if t in e and e[t] is not None and type(e[t]) != list and e[t] not in d:
             d[e[t]] = {}
         if t in e and e[t] is not None and type(e[t]) != list and e[t] in d:
-            self.reccatindex(d[e[t]],e,l+1,m)
+            self.reccatindex(d[e[t]], e, l+1, m)
 
-    def reccatcount(self,k,v,l,m):
+    def reccatcount(self, k, v, l, m):
         """ This subfunction of createcategoryindex() adds the number of 
         documents associated with any (sub)category to its dictionary as the
         _count property. """
@@ -145,7 +145,7 @@ class HUWebshop(object):
 
     """ ..:: Helper Functions ::.. """
 
-    def flattendict(self,d,s=[]):
+    def flattendict(self, d, s=[]):
         """ This helper function provides a list of all keys that exist within a
         nested dictionary. """
         for k, v in d.items():
@@ -161,14 +161,14 @@ class HUWebshop(object):
         """ This helper function encodes any category name into a URL-friendly
         string, making sensible and human-readable substitutions. """
         c = c.lower()
-        c = c.replace(" ","-")
-        c = c.replace(",","")
-        c = c.replace("'","")
-        c = c.replace("&","en")
-        c = c.replace("ë","e")
-        c = c.replace("=","-is-")
-        c = c.replace("%","-procent-")
-        c = c.replace("--","-")
+        c = c.replace(" ", "-")
+        c = c.replace(",", "")
+        c = c.replace("'", "")
+        c = c.replace("&", "en")
+        c = c.replace("ë", "e")
+        c = c.replace("=", "-is-")
+        c = c.replace("%", "-procent-")
+        c = c.replace("--", "-")
         c = urllib.parse.quote(c)
         return c
 
@@ -183,8 +183,8 @@ class HUWebshop(object):
             r['price'] = "0"+r['price']
         if p['properties']['discount'] is not None:
             r['discount'] = p['properties']['discount'] 
-        r['smallimage'] = "" # TODO: replace this with actual images!
-        r['bigimage'] = "" # TODO: replace this with actual images!
+        r['smallimage'] = ""    # TODO: replace this with actual images!
+        r['bigimage'] = ""      # TODO: replace this with actual images!
         r['id'] = p['_id']
         return r
 
@@ -276,9 +276,9 @@ class HUWebshop(object):
             'pend': skipindex + session['items_per_page'] if session['items_per_page'] > 0 else prodcount,
             'prevpage': pagepath+str(page-1) if (page > 1) else False,
             'nextpage': pagepath+str(page+1) if (session['items_per_page']*page < prodcount) else False,
-            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[0]),
-            'r_type':list(self.recommendationtypes.keys())[0],
-            'r_string':list(self.recommendationtypes.values())[0],
+            'r_products': self.recommendations(4, category, list(self.recommendationtypes.keys())[0]),
+            'r_type': list(self.recommendationtypes.keys())[0],
+            'r_string': list(self.recommendationtypes.values())[0],
             # Second row of recommendations
             'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
             'r_type2': list(self.recommendationtypes.keys())[4],
@@ -294,11 +294,11 @@ class HUWebshop(object):
         else:
             category = self.encodecategory(product['category']) + "@1"
         return self.renderpackettemplate('productdetail.html', {
-            'product':product,
-            'prepproduct':self.prepproduct(product),
-            'r_products':self.recommendations(4,category, list(self.recommendationtypes.keys())[1]),
-            'r_type':list(self.recommendationtypes.keys())[1],
-            'r_string':list(self.recommendationtypes.values())[1],
+            'product': product,
+            'prepproduct': self.prepproduct(product),
+            'r_products': self.recommendations(4,category, list(self.recommendationtypes.keys())[1]),
+            'r_type': list(self.recommendationtypes.keys())[1],
+            'r_string': list(self.recommendationtypes.values())[1],
             'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
             'r_type2': list(self.recommendationtypes.keys())[4],
             'r_string2': list(self.recommendationtypes.values())[4]
@@ -309,7 +309,7 @@ class HUWebshop(object):
         i = []
         products = {}
         for tup in session['shopping_cart']:
-            product_data = self.database.products.find_one({"_id":str(tup[0])})
+            product_data = self.database.products.find_one({"_id": str(tup[0])})
             if tup[0] in products.keys():
                 products[tup[0]] += tup[1]
             else:
@@ -320,12 +320,12 @@ class HUWebshop(object):
         if products == {}:
             category = "None"
         else:
-            category = self.encodecategory(max(products,key=products.get)) + "@0"
-        return self.renderpackettemplate('shoppingcart.html',{
-            'itemsincart':i,
-            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[1]),
-            'r_type':list(self.recommendationtypes.keys())[1],
-            'r_string':list(self.recommendationtypes.values())[1],
+            category = self.encodecategory(max(products, key=products.get)) + "@0"
+        return self.renderpackettemplate('shoppingcart.html', {
+            'itemsincart': i,
+            'r_products': self.recommendations(4, category, list(self.recommendationtypes.keys())[1]),
+            'r_type': list(self.recommendationtypes.keys())[1],
+            'r_string': list(self.recommendationtypes.values())[1],
             'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[3]),
             'r_type2': list(self.recommendationtypes.keys())[3],
             'r_string2': list(self.recommendationtypes.values())[3]

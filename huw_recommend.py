@@ -110,7 +110,7 @@ class Recom(Resource):
                                        LIMIT {count};
                     ''')
                 # Combineert goed met
-                case 'combination':
+                case 'combination': # TODO:fixing in shopping cart
                     cursor.execute(f'''SELECT sessionssession_id
                                        FROM orders
                                        WHERE productproduct_id = '{category_name_dec}'
@@ -119,7 +119,10 @@ class Recom(Resource):
                     sessions_bought_product = cursor.fetchall()
                     relevant_sessions = ''''''
                     for session in sessions_bought_product:
-                        relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
+                        if relevant_sessions == '''''':
+                            relevant_sessions += f''' orders.sessionssession_id = '{session}' '''
+                        else:
+                            relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
                     if relevant_sessions != '''''':
                         relevant_sessions = '''AND ''' + relevant_sessions
                     cursor.execute(f'''SELECT productproduct_id
@@ -153,7 +156,10 @@ class Recom(Resource):
                     preferences = cursor.fetchall()
                     preferred = ''''''
                     for preference in preferences:
-                        preferred += f'''OR {preference[0]} = '{preference[1]}' '''
+                        if preferred == '''''':
+                            preferred += f''' {preference[0]} = '{preference[1]}' '''
+                        else:
+                            preferred += f'''OR {preference[0]} = '{preference[1]}' '''
                     if preferred != '''''':
                         preferred = '''AND ''' + preferred
                     cursor.execute(f'''SELECT product_id

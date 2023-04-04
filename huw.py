@@ -293,11 +293,16 @@ class HUWebshop(object):
             category = self.encodecategory(product['sub_category']) + "@2"
         else:
             category = self.encodecategory(product['category']) + "@1"
-        return self.renderpackettemplate('productdetail.html', {'product':product,\
-            'prepproduct':self.prepproduct(product),\
-            'r_products':self.recommendations(4,category, list(self.recommendationtypes.keys())[1]), \
-            'r_type':list(self.recommendationtypes.keys())[1],\
-            'r_string':list(self.recommendationtypes.values())[1]})
+        return self.renderpackettemplate('productdetail.html', {
+            'product':product,
+            'prepproduct':self.prepproduct(product),
+            'r_products':self.recommendations(4,category, list(self.recommendationtypes.keys())[1]),
+            'r_type':list(self.recommendationtypes.keys())[1],
+            'r_string':list(self.recommendationtypes.values())[1],
+            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
+            'r_type2': list(self.recommendationtypes.keys())[4],
+            'r_string2': list(self.recommendationtypes.values())[4]
+            })
 
     def shoppingcart(self):
         """ This function renders the shopping cart for the user."""
@@ -316,10 +321,15 @@ class HUWebshop(object):
             category = "None"
         else:
             category = self.encodecategory(max(products,key=products.get)) + "@0"
-        return self.renderpackettemplate('shoppingcart.html',{'itemsincart':i,\
-            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[2]), \
-            'r_type':list(self.recommendationtypes.keys())[2],\
-            'r_string':list(self.recommendationtypes.values())[2]})
+        return self.renderpackettemplate('shoppingcart.html',{
+            'itemsincart':i,
+            'r_products':self.recommendations(4, category, list(self.recommendationtypes.keys())[1]),
+            'r_type':list(self.recommendationtypes.keys())[1],
+            'r_string':list(self.recommendationtypes.values())[1],
+            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[3]),
+            'r_type2': list(self.recommendationtypes.keys())[3],
+            'r_string2': list(self.recommendationtypes.values())[3]
+            })
 
     def categoryoverview(self):
         """ This subpage shows all top-level categories in its main menu. """

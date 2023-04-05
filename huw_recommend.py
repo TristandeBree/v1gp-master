@@ -59,6 +59,99 @@ class Recom(Resource):
             decode_dict[self.encodecategory(category)] = category
         return decode_dict
 
+    def popular(self, cursor, type, id, count):
+        cursor.execute(f'''SELECT orders.productproduct_id, COUNT(orders.productproduct_id)
+                                               FROM orders
+                                               JOIN product on orders.productproduct_id = product.product_id
+                                               WHERE recommendable = True AND {type} = '{id}'
+                                               GROUP BY orders.productproduct_id
+                                               ORDER BY count DESC
+                                               LIMIT {count};
+                            ''')
+        return cursor.fetchall()
+
+    def similar(self, cursor, type, id, count):
+        # cursor.execute(f'''SELECT product_id
+        #                    FROM product
+        #                    WHERE product_id = {pro}
+        # ''')
+        # cursor.execute(f'''SELECT product_id
+        #                    FROM product
+        #                    WHERE recommendable = True
+        #                    ORDER BY CASE WHEN brand = 'Aquafresh' THEN 1
+        # 	                             ELSE 2
+        # 	                             END
+        # ''', (count,)) TODO: brand/product_id doorgeven
+        cursor.execute(f'''SELECT product_id
+                                               FROM product
+                                               WHERE recommendable = True AND {type} = '{id}'
+                                               ORDER BY RANDOM()
+                                               LIMIT {count};
+                            ''')
+        return cursor.fetchall()
+
+    def combination(self, cursor, id, count):
+        cursor.execute(f'''SELECT sessionssession_id
+                                               FROM orders
+                                               WHERE productproduct_id = '{id}'
+                                               LIMIT 10;
+                            ''')
+        sessions_bought_product = [row[0] for row in cursor.fetchall()]
+        relevant_sessions = ''''''
+        for session in sessions_bought_product:
+            if relevant_sessions == '''''':
+                relevant_sessions += f'''orders.sessionssession_id = '{session}' '''
+            else:
+                relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
+        if relevant_sessions != '''''':
+            relevant_sessions = '''AND ''' + relevant_sessions
+        cursor.execute(f'''SELECT productproduct_id
+                                               FROM orders
+                                               JOIN product AS prod ON orders.productproduct_id = prod.product_id
+                                               WHERE prod.recommendable = True {relevant_sessions}
+                                               ORDER BY Random()
+                                               LIMIT {count};
+                            ''')
+        return cursor.fetchall()
+
+    def behaviour(self,cursor,id,count):
+        cursor.execute(f'''SELECT ev.event_product
+                           FROM profile prof
+                           JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
+                           JOIN sessions AS ses ON iden.bu_id = ses.bu_id
+                           JOIN event AS ev ON ses.session_id = ev.sessionssession_id
+                           JOIN product AS prod ON ev.event_product = prod.product_id
+                           WHERE prod.recommendable = True AND prof.profile_id = '{id}'
+                           LIMIT {count};
+        ''')  # TODO: Minimaal 4 garanderen
+        return cursor.fetchall()
+
+    def personal(self,cursor,id,count):
+        cursor.execute(f'''SELECT preference_type, preference_name
+                                               FROM profile prof
+                                               JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
+                                               JOIN sessions AS ses ON iden.bu_id = ses.bu_id
+                                               JOIN preferences AS pref ON ses.session_id = pref.Sessionssession_id
+                                               WHERE prof.profile_id = '{id}'
+                                               LIMIT {count};
+                            ''')
+        preferences = [[row[0], row[1]] for row in cursor.fetchall()]
+        preferred = ''''''
+        for preference in preferences:
+            if preferred == '''''':
+                preferred += f''' {preference[0]} = '{preference[1]}' '''
+            else:
+                preferred += f'''OR {preference[0]} = '{preference[1]}' '''
+        if preferred != '''''':
+            preferred = '''AND ''' + preferred
+        cursor.execute(f'''SELECT product_id
+                                               FROM product
+                                               WHERE recommendable = True AND (folder_active = 'Enabled' 
+                                                    OR discount IS NOT Null)
+                                                    {preferred}
+                                               LIMIT {count};
+                            ''')
+        return cursor.fetchall()
     def get(self, profileid, categories, rtype, count):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
@@ -70,6 +163,7 @@ class Recom(Resource):
                                ORDER BY RANDOM()
                                LIMIT {count};
             ''')
+            ids = cursor.fetchall()
         else:
             if '~' in categories:
                 s = list(categories)
@@ -86,94 +180,20 @@ class Recom(Resource):
             match rtype:
                 # Anderen kochten ook
                 case 'popular':
-                    cursor.execute(f'''SELECT orders.productproduct_id, COUNT(orders.productproduct_id)
-                                       FROM orders
-                                       JOIN product on orders.productproduct_id = product.product_id
-                                       WHERE recommendable = True AND {category_type} = '{category_name_dec}'
-                                       GROUP BY orders.productproduct_id
-                                       ORDER BY count DESC
-                                       LIMIT {count};
-                    ''')
+                    ids = self.popular(cursor, category_type, category_name_dec, count)
                 # Soortgelijke producten
                 case 'similar':
-                    # cursor.execute(f'''SELECT product_id
-                    #                    FROM product
-                    #                    WHERE product_id = {pro}
-                    # ''')
-                    # cursor.execute(f'''SELECT product_id
-                    #                    FROM product
-                    #                    WHERE recommendable = True
-                    #                    ORDER BY CASE WHEN brand = 'Aquafresh' THEN 1
-                 	# 	                             ELSE 2
-					# 	                             END
-                    # ''', (count,)) TODO: brand/product_id doorgeven
-                    cursor.execute(f'''SELECT product_id
-                                       FROM product
-                                       WHERE recommendable = True AND {category_type} = '{category_name_dec}'
-                                       ORDER BY RANDOM()
-                                       LIMIT {count};
-                    ''')
+                    ids = self.similar(cursor,category_type,category_name_enc,count)
                 # Combineert goed met
                 case 'combination': # TODO:fixing in shopping cart
-                    cursor.execute(f'''SELECT sessionssession_id
-                                       FROM orders
-                                       WHERE productproduct_id = '{category_name_enc}'
-                                       LIMIT 10;
-                    ''')
-                    sessions_bought_product = [row[0] for row in cursor.fetchall()]
-                    relevant_sessions = ''''''
-                    for session in sessions_bought_product:
-                        if relevant_sessions == '''''':
-                            relevant_sessions += f'''orders.sessionssession_id = '{session}' '''
-                        else:
-                            relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
-                    if relevant_sessions != '''''':
-                        relevant_sessions = '''AND ''' + relevant_sessions
-                    cursor.execute(f'''SELECT productproduct_id
-                                       FROM orders
-                                       JOIN product AS prod ON orders.productproduct_id = prod.product_id
-                                       WHERE prod.recommendable = True {relevant_sessions}
-                                       ORDER BY Random()
-                                       LIMIT {count};
-                    ''')
+                    ids = self.combination(cursor,category_name_enc, count)
                 # Passend bij uw gedrag
                 case 'behaviour':
-                    cursor.execute(f'''SELECT ev.event_product
-                                       FROM profile prof
-                                       JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
-                                       JOIN sessions AS ses ON iden.bu_id = ses.bu_id
-                                       JOIN event AS ev ON ses.session_id = ev.sessionssession_id
-                                       JOIN product AS prod ON ev.event_product = prod.product_id
-                                       WHERE prod.recommendable = True AND prof.profile_id = '{profileid}'
-                                       LIMIT {count};
-                    ''') # TODO: Minimaal 4 garanderen
+                    ids = self.behaviour(cursor, profileid,count)
                 # Persoonlijk aanbevolen
                 case 'personal':
-                    cursor.execute(f'''SELECT preference_type, preference_name
-                                       FROM profile prof
-                                       JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
-                                       JOIN sessions AS ses ON iden.bu_id = ses.bu_id
-                                       JOIN preferences AS pref ON ses.session_id = pref.Sessionssession_id
-                                       WHERE prof.profile_id = '{profileid}'
-                                       LIMIT {count};
-                    ''')
-                    preferences = [row[0] for row in cursor.fetchall()]
-                    preferred = ''''''
-                    for preference in preferences:
-                        if preferred == '''''':
-                            preferred += f''' {preference[0]} = '{preference[1]}' '''
-                        else:
-                            preferred += f'''OR {preference[0]} = '{preference[1]}' '''
-                    if preferred != '''''':
-                        preferred = '''AND ''' + preferred
-                    cursor.execute(f'''SELECT product_id
-                                       FROM product
-                                       WHERE recommendable = True AND (folder_active = 'Enabled' 
-                                            OR discount IS NOT Null)
-                                            {preferred}
-                                       LIMIT {count};
-                    ''')
-        prodids = [row[0] for row in cursor.fetchall()]
+                    ids = self.personal(cursor,profileid,count)
+        prodids = [row[0] for row in ids]
         cursor.close()
         print(categories)
         print(rtype)

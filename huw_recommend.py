@@ -92,10 +92,10 @@ class Recom(Resource):
 
     def combination(self, cursor, id, count):
         cursor.execute(f'''SELECT sessionssession_id
-                                               FROM orders
-                                               WHERE productproduct_id = '{id}'
-                                               LIMIT 10;
-                            ''')
+                           FROM orders
+                           WHERE productproduct_id = '{id}'
+                           LIMIT 10;
+        ''')
         sessions_bought_product = [row[0] for row in cursor.fetchall()]
         relevant_sessions = ''''''
         for session in sessions_bought_product:
@@ -106,12 +106,12 @@ class Recom(Resource):
         if relevant_sessions != '''''':
             relevant_sessions = '''AND ''' + relevant_sessions
         cursor.execute(f'''SELECT productproduct_id
-                                               FROM orders
-                                               JOIN product AS prod ON orders.productproduct_id = prod.product_id
-                                               WHERE prod.recommendable = True {relevant_sessions}
-                                               ORDER BY Random()
-                                               LIMIT {count};
-                            ''')
+                           FROM orders
+                           JOIN product AS prod ON orders.productproduct_id = prod.product_id
+                           WHERE prod.recommendable = True {relevant_sessions}
+                           ORDER BY Random()
+                           LIMIT {count};
+        ''')
         return cursor.fetchall()
 
     def behaviour(self, cursor, id, count):
@@ -152,6 +152,7 @@ class Recom(Resource):
                                                LIMIT {count};
                             ''')
         return cursor.fetchall()
+
     def get(self, profileid, categories, rtype, count):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
@@ -173,6 +174,7 @@ class Recom(Resource):
             # Add 'sub_' category_number-1 times before adding category
             if category_number == '0':
                 category_type = 'product_id'
+                category_name_dec = category_name_enc
             else:
                 category_type = '' + ('sub_' * (int(category_number)-1)) + 'category'
                 decoder = self.decode_dict(cursor, category_type)
@@ -183,7 +185,7 @@ class Recom(Resource):
                     ids = self.popular(cursor, category_type, category_name_dec, count)
                 # Soortgelijke producten
                 case 'similar':
-                    ids = self.similar(cursor, category_type, category_name_enc, count)
+                    ids = self.similar(cursor, category_type, category_name_dec, count)
                 # Combineert goed met
                 case 'combination':
                     ids = self.combination(cursor, category_name_enc, count)

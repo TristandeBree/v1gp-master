@@ -114,7 +114,7 @@ class Recom(Resource):
                             ''')
         return cursor.fetchall()
 
-    def behaviour(self,cursor,id,count):
+    def behaviour(self, cursor, id, count):
         cursor.execute(f'''SELECT ev.event_product
                            FROM profile prof
                            JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
@@ -126,7 +126,7 @@ class Recom(Resource):
         ''')  # TODO: Minimaal 4 garanderen
         return cursor.fetchall()
 
-    def personal(self,cursor,id,count):
+    def personal(self, cursor, id, count):
         cursor.execute(f'''SELECT preference_type, preference_name
                                                FROM profile prof
                                                JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
@@ -186,14 +186,14 @@ class Recom(Resource):
                 case 'similar':
                     ids = self.similar(cursor,category_type,category_name_dec,count)
                 # Combineert goed met
-                case 'combination': # TODO:fixing in shopping cart
-                    ids = self.combination(cursor,category_name_enc, count)
+                case 'combination':
+                    ids = self.combination(cursor, category_name_enc, count)
                 # Passend bij uw gedrag
                 case 'behaviour':
-                    ids = self.behaviour(cursor, profileid,count)
+                    ids = self.behaviour(cursor, profileid, count)
                 # Persoonlijk aanbevolen
                 case 'personal':
-                    ids = self.personal(cursor,profileid,count)
+                    ids = self.personal(cursor, profileid, count)
         print(ids)
         prodids = [row[0] for row in ids]
         print(prodids)

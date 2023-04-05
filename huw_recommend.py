@@ -35,23 +35,23 @@ class Recom(Resource):
         """ This helper function encodes any category name into a URL-friendly
         string, making sensible and human-readable substitutions. """
         c = c.lower()
-        c = c.replace(" ","-")
-        c = c.replace(",","")
-        c = c.replace("'","")
-        c = c.replace("&","en")
-        c = c.replace("ë","e")
-        c = c.replace("=","-is-")
-        c = c.replace("%","-procent-")
-        c = c.replace("--","-")
+        c = c.replace(" ", "-")
+        c = c.replace(",", "")
+        c = c.replace("'", "")
+        c = c.replace("&", "en")
+        c = c.replace("ë", "e")
+        c = c.replace("=", "-is-")
+        c = c.replace("%", "-procent-")
+        c = c.replace("--", "-")
         c = urllib.parse.quote(c)
         return c
 
-    def decode_dict(self,cursor,cat_type):
+    def decode_dict(self, cursor, cat_type):
         decode_dict = {}
         cursor.execute(
             f'''
-            Select distinct {cat_type} from product
-            where {cat_type} is not null
+            SELECT DISTINCT {cat_type} FROM product
+            WHERE {cat_type} IS NOT NULL
             '''
         )
         categories = [row[0] for row in cursor.fetchall()]

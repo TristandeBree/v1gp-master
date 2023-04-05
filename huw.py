@@ -19,12 +19,12 @@ class HUWebshop(object):
     client = None
     database = None
 
-    envvals = ["MONGODBUSER","MONGODBPASSWORD","MONGODBSERVER","RECOMADDRESS"]
+    envvals = ["MONGODBUSER", "MONGODBPASSWORD", "MONGODBSERVER", "RECOMADDRESS"]
     dbstring = 'mongodb+srv://{0}:{1}@{2}/test?retryWrites=true&w=majority'
     recseraddress = "http://127.0.0.1:5001"
 
     categoryindex = None
-    catlevels = ["category","sub_category","sub_sub_category","sub_sub_sub_category"]
+    catlevels = ["category", "sub_category", "sub_sub_category", "sub_sub_sub_category"]
     catencode = {}
     catdecode = {}
     mainmenucount = 8
@@ -34,7 +34,9 @@ class HUWebshop(object):
 
     productfields = ["name", "price.selling_price", "properties.discount", "images"]
 
-    recommendationtypes = {'popular':"Anderen kochten ook",'similar':"Soortgelijke producten",'combination':'Combineert goed met','behaviour':'Passend bij uw gedrag','personal':'Persoonlijk aanbevolen'}
+    recommendationtypes = {'popular': "Anderen kochten ook", 'similar': "Soortgelijke producten",
+                           'combination': 'Combineert goed met',
+                           'behaviour': 'Passend bij uw gedrag', 'personal': 'Persoonlijk aanbevolen'}
 
     """ ..:: Initialization and Category Index Functions ::.. """
 
@@ -52,7 +54,8 @@ class HUWebshop(object):
             for val in self.envvals:
                 envdict[val] = str(os.getenv(val))
             if envdict["MONGODBUSER"] and envdict["MONGODBPASSWORD"] and envdict["MONGODBSERVER"]:
-                self.client = MongoClient(self.dbstring.format(envdict["MONGODBUSER"], envdict["MONGODBPASSWORD"], envdict["MONGODBSERVER"]))
+                self.client = MongoClient(self.dbstring.format(envdict["MONGODBUSER"], envdict["MONGODBPASSWORD"],
+                                                               envdict["MONGODBSERVER"]))
             else:
                 self.client = MongoClient()
             if envdict["RECOMADDRESS"]:
@@ -63,11 +66,12 @@ class HUWebshop(object):
 
         # Once we have a connection to the database, we check to see whether it
         # has a category index prepared; if not, we have a function to make it.
-        if "categoryindex" not in self.database.list_collection_names() or self.database.categoryindex.count_documents({}) == 0:
+        if "categoryindex" not in self.database.list_collection_names() or \
+                self.database.categoryindex.count_documents({}) == 0:
             self.createcategoryindex()
 
         # We retrieve the categoryindex from the database when it is set.
-        self.categoryindex = self.database.categoryindex.find_one({}, {'_id' : 0})
+        self.categoryindex = self.database.categoryindex.find_one({}, {'_id': 0})
 
         # In order to save time in future, we flatten the category index once,
         # and translate all values to and from an encoded, URL-friendly, legible
@@ -172,13 +176,14 @@ class HUWebshop(object):
         c = urllib.parse.quote(c)
         return c
 
-    def prepproduct(self,p):
+    def prepproduct(self, p):
         """ This helper function flattens and rationalizes the values retrieved
         for a product block element. """
         r = {}
         r['name'] = p['name']
         r['price'] = p['price']['selling_price']
-        r['price'] = str(r['price'])[0:-2]+",-" if r['price'] % 100 == 0 else str(r['price'])[0:-2]+","+str(r['price'])[-2:]
+        r['price'] = str(r['price'])[0:-2]+",-" if r['price'] % 100 == 0 \
+            else str(r['price'])[0:-2]+","+str(r['price'])[-2:]
         if r['price'][0:1] == ",":
             r['price'] = "0"+r['price']
         if p['properties']['discount'] is not None:
@@ -229,7 +234,7 @@ class HUWebshop(object):
         service. At the moment, it only transmits the profile ID and the number
         of expected recommendations; to have more user information in the REST
         request, this function would have to change."""
-        resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categories+"/"+ rtype +"/"+str(count))
+        resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categories+"/" + rtype + "/" + str(count))
         if resp.status_code == 200:
             recs = eval(resp.content.decode())
             queryfilter = {"_id": {"$in": recs}}
@@ -288,7 +293,7 @@ class HUWebshop(object):
     def productdetail(self, productid):
         """ This function renders the product detail page based on the product
         id provided. """
-        product = self.database.products.find_one({"_id":str(productid)})
+        product = self.database.products.find_one({"_id": str(productid)})
         if product['sub_category'] is not None:
             category = self.encodecategory(product['sub_category']) + "@2"
         else:

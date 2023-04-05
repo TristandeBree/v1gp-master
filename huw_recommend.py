@@ -173,6 +173,7 @@ class Recom(Resource):
             # Add 'sub_' category_number-1 times before adding category
             if category_number == '0':
                 category_type = 'product_id'
+                category_name_dec = category_name_enc
             else:
                 category_type = '' + ('sub_' * (int(category_number)-1)) + 'category'
                 decoder = self.decode_dict(cursor, category_type)
@@ -183,7 +184,7 @@ class Recom(Resource):
                     ids = self.popular(cursor, category_type, category_name_dec, count)
                 # Soortgelijke producten
                 case 'similar':
-                    ids = self.similar(cursor,category_type,category_name_enc,count)
+                    ids = self.similar(cursor,category_type,category_name_dec,count)
                 # Combineert goed met
                 case 'combination': # TODO:fixing in shopping cart
                     ids = self.combination(cursor,category_name_enc, count)

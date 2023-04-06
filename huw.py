@@ -304,9 +304,9 @@ class HUWebshop(object):
             'r_products': self.recommendations(4,category, list(self.recommendationtypes.keys())[1]),
             'r_type': list(self.recommendationtypes.keys())[1],
             'r_string': list(self.recommendationtypes.values())[1],
-            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
-            'r_type2': list(self.recommendationtypes.keys())[4],
-            'r_string2': list(self.recommendationtypes.values())[4]
+            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[2]),
+            'r_type2': list(self.recommendationtypes.keys())[2],
+            'r_string2': list(self.recommendationtypes.values())[2]
             })
 
     def shoppingcart(self):
@@ -332,12 +332,12 @@ class HUWebshop(object):
             category = "".join(s)
         return self.renderpackettemplate('shoppingcart.html', {
             'itemsincart': i,
-            'r_products': self.recommendations(4, category, list(self.recommendationtypes.keys())[1]),
-            'r_type': list(self.recommendationtypes.keys())[1],
-            'r_string': list(self.recommendationtypes.values())[1],
-            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[3]),
-            'r_type2': list(self.recommendationtypes.keys())[3],
-            'r_string2': list(self.recommendationtypes.values())[3]
+            'r_products': self.recommendations(4, category, list(self.recommendationtypes.keys())[3]),
+            'r_type': list(self.recommendationtypes.keys())[3],
+            'r_string': list(self.recommendationtypes.values())[3],
+            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
+            'r_type2': list(self.recommendationtypes.keys())[4],
+            'r_string2': list(self.recommendationtypes.values())[4]
             })
 
     def categoryoverview(self):

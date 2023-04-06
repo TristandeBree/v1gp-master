@@ -94,10 +94,10 @@ class Recom(Resource):
 
     def combination(self, cursor, id, count):
         cursor.execute(f'''SELECT sessionssession_id
-                                               FROM orders
-                                               WHERE productproduct_id = '{id}'
-                                               LIMIT 10;
-                            ''')
+                           FROM orders
+                           WHERE productproduct_id = '{id}'
+                           LIMIT 10;
+        ''')
         sessions_bought_product = [row[0] for row in cursor.fetchall()]
         relevant_sessions = ''''''
         for session in sessions_bought_product:
@@ -108,15 +108,15 @@ class Recom(Resource):
         if relevant_sessions != '''''':
             relevant_sessions = '''AND ''' + relevant_sessions
         cursor.execute(f'''SELECT productproduct_id
-                                               FROM orders
-                                               JOIN product AS prod ON orders.productproduct_id = prod.product_id
-                                               WHERE prod.recommendable = True {relevant_sessions}
-                                               ORDER BY Random()
-                                               LIMIT {count};
-                            ''')
+                           FROM orders
+                           JOIN product AS prod ON orders.productproduct_id = prod.product_id
+                           WHERE prod.recommendable = True {relevant_sessions}
+                           ORDER BY Random()
+                           LIMIT {count};
+        ''')
         return cursor.fetchall()
 
-    def behaviour(self,cursor,id,count):
+    def behaviour(self, cursor, id, count):
         cursor.execute(f'''SELECT ev.event_product
                            FROM profile prof
                            JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
@@ -128,7 +128,7 @@ class Recom(Resource):
         ''')  # TODO: Minimaal 4 garanderen
         return cursor.fetchall()
 
-    def personal(self,cursor,id,count):
+    def personal(self, cursor, id, count):
         cursor.execute(f'''SELECT preference_type, preference_name
                                                FROM profile prof
                                                JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
@@ -154,6 +154,7 @@ class Recom(Resource):
                                                LIMIT {count};
                             ''')
         return cursor.fetchall()
+
     def get(self, profileid, categories, rtype, count):
         """ This function represents the handler for GET requests coming in
         through the API. It currently returns a random sample of products. """
@@ -175,6 +176,7 @@ class Recom(Resource):
             # Add 'sub_' category_number-1 times before adding category
             if category_number == '0':
                 category_type = 'product_id'
+                category_name_dec = category_name_enc
             else:
                 category_type = '' + ('sub_' * (int(category_number)-1)) + 'category'
                 decoder = self.decode_dict(cursor, category_type)
@@ -185,16 +187,16 @@ class Recom(Resource):
                     ids = self.popular(cursor, category_type, category_name_dec, count)
                 # Soortgelijke producten
                 case 'similar':
-                    ids = self.similar(cursor,category_type,category_name_enc,count)
+                    ids = self.similar(cursor, category_type, category_name_dec, count)
                 # Combineert goed met
-                case 'combination': # TODO:fixing in shopping cart
-                    ids = self.combination(cursor,category_name_enc, count)
+                case 'combination':
+                    ids = self.combination(cursor, category_name_enc, count)
                 # Passend bij uw gedrag
                 case 'behaviour':
-                    ids = self.behaviour(cursor, profileid,count)
+                    ids = self.behaviour(cursor, profileid, count)
                 # Persoonlijk aanbevolen
                 case 'personal':
-                    ids = self.personal(cursor,profileid,count)
+                    ids = self.personal(cursor, profileid, count)
         print(ids)
         prodids = [row[0] for row in ids]
         print(prodids)

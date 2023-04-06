@@ -73,23 +73,23 @@ class Recom(Resource):
         return sample(popular_items, min(count, len(popular_items)))
 
     def similar(self, cursor, type, id, count):
-        # cursor.execute(f'''SELECT product_id
-        #                    FROM product
-        #                    WHERE product_id = {pro}
-        # ''')
-        # cursor.execute(f'''SELECT product_id
-        #                    FROM product
-        #                    WHERE recommendable = True
-        #                    ORDER BY CASE WHEN brand = 'Aquafresh' THEN 1
-        # 	                             ELSE 2
-        # 	                             END
+        cursor.execute(f'''SELECT brand, sub_category, product_name
+                           FROM product
+                           WHERE {type} = '{id}'
+                           LIMIT 1;
+        ''')
+        columns_raw = cursor.fetchall()[0]
+        columns = [columns_raw[0], columns_raw[1], columns_raw[2]]
         # ''', (count,)) TODO: brand/product_id doorgeven
         cursor.execute(f'''SELECT product_id
-                                               FROM product
-                                               WHERE recommendable = True AND {type} = '{id}'
-                                               ORDER BY RANDOM()
-                                               LIMIT {count};
-                            ''')
+                           FROM product
+                           WHERE recommendable = true
+                             AND sub_category = '{columns[1]}'
+                             AND (brand = '{columns[0]}' 
+                             OR COALESCE(brand, LEFT(product_name, 3)) = LEFT('{columns[2]}', 3))
+                           ORDER BY RANDOM()
+                           LIMIT {count};
+        ''')
         return cursor.fetchall()
 
     def combination(self, cursor, productid, count):

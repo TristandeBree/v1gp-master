@@ -294,17 +294,18 @@ class HUWebshop(object):
         """ This function renders the product detail page based on the product
         id provided. """
         product = self.database.products.find_one({"_id": str(productid)})
-        if product['sub_category'] is not None:
-            category = self.encodecategory(product['sub_category']) + "@2"
-        else:
-            category = self.encodecategory(product['category']) + "@1"
+        # if product['sub_category'] is not None:
+        #     category = self.encodecategory(product['sub_category']) + "@2"
+        # else:
+        #     category = self.encodecategory(product['category']) + "@1"
+        product_id_url = productid + "@0"
         return self.renderpackettemplate('productdetail.html', {
             'product': product,
             'prepproduct': self.prepproduct(product),
-            'r_products': self.recommendations(4,category, list(self.recommendationtypes.keys())[1]),
+            'r_products': self.recommendations(4, product_id_url, list(self.recommendationtypes.keys())[1]),
             'r_type': list(self.recommendationtypes.keys())[1],
             'r_string': list(self.recommendationtypes.values())[1],
-            'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[2]),
+            'r_products2': self.recommendations(4, product_id_url, list(self.recommendationtypes.keys())[2]),
             'r_type2': list(self.recommendationtypes.keys())[2],
             'r_string2': list(self.recommendationtypes.values())[2]
             })

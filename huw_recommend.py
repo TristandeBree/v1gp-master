@@ -24,7 +24,7 @@ if os.getenv(envvals[0]) is not None:
     envvals = list(map(lambda x: str(os.getenv(x)), envvals))
     conn = psycopg2.connect(dbstring.format(*envvals))
 else:
-    conn = psycopg2.connect(database="huwebshop", user="postgres", password=password, host="localhost", port="5432")
+    conn = psycopg2.connect(database="huwebshop", user="postgres", password=password, host="localhost")
 
 
 class Recom(Resource):
@@ -61,14 +61,16 @@ class Recom(Resource):
 
     def popular(self, cursor, type, id, count):
         cursor.execute(f'''SELECT orders.productproduct_id, COUNT(orders.productproduct_id)
-                                               FROM orders
-                                               JOIN product on orders.productproduct_id = product.product_id
-                                               WHERE recommendable = True AND {type} = '{id}'
-                                               GROUP BY orders.productproduct_id
-                                               ORDER BY count DESC
-                                               LIMIT {count};
+                           FROM orders
+                           JOIN product on orders.productproduct_id = product.product_id
+                           WHERE recommendable = True AND {type} = '{id}'
+                           GROUP BY orders.productproduct_id
+                           ORDER BY count DESC
+                           LIMIT {3*count};
                             ''')
-        return cursor.fetchall()
+        data = cursor.fetchall()
+
+        return sample(data, 4)
 
     def similar(self, cursor, type, id, count):
         # cursor.execute(f'''SELECT product_id

@@ -122,6 +122,7 @@ class Recom(Resource):
                            JOIN event AS ev ON ses.session_id = ev.sessionssession_id
                            JOIN product AS prod ON ev.event_product = prod.product_id
                            WHERE prod.recommendable = True AND prof.profile_id = '{id}'
+                           ORDER BY RANDOM()
                            LIMIT {count};
         ''')  # TODO: Minimaal 4 garanderen
         return cursor.fetchall()
@@ -194,8 +195,11 @@ class Recom(Resource):
                 # Persoonlijk aanbevolen
                 case 'personal':
                     ids = self.personal(cursor, profileid, count)
-        print(ids)
         prodids = [row[0] for row in ids]
+        if len(prodids) < 4:
+            ids = self.popular(cursor, category_type, category_name_dec, 4 - len(prodids))
+            for id in ids:
+                prodids.append(id[0])
         print(prodids)
         cursor.close()
         return prodids, 200

@@ -227,10 +227,17 @@ class Recom(Resource):
                     ids = self.personal(cursor, profileid, count)
         prodids = [row[0] for row in ids]
         if len(prodids) < 4:
-            ids = self.popular(cursor, category_type, category_name_dec, 4 - len(prodids))
+            if 'category' not in category_type:
+                cursor.execute(f"""
+                select category from product
+                where product_id = '{category_name_dec}' 
+                """)
+                category = cursor.fetchall()
+                ids = self.popular(cursor, 'category', category[0][0], 4 - len(prodids))
+            else:
+                ids = self.popular(cursor,category_type,category_name_dec,4 - len(prodids))
             for id in ids:
                 prodids.append(id[0])
-        print(prodids)
         cursor.close()
         return prodids, 200
 

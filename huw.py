@@ -231,10 +231,12 @@ class HUWebshop(object):
     def recommendations(self, count, categories, rtype):
         """ This function returns the recommendations from the provided page
         and context, by sending a request to the designated recommendation
-        service. At the moment, it only transmits the profile ID and the number
+        service. At the moment, it only transmits the profile ID or a type of category
+        with an <@> indicating what it is, the recommendation type and the number
         of expected recommendations; to have more user information in the REST
         request, this function would have to change."""
         resp = requests.get(self.recseraddress+"/"+session['profile_id']+"/"+categories+"/" + rtype + "/" + str(count))
+        # If the request is succesful
         if resp.status_code == 200:
             recs = eval(resp.content.decode())
             queryfilter = {"_id": {"$in": recs}}
@@ -264,12 +266,16 @@ class HUWebshop(object):
         querycursor.skip(skipindex)
         querycursor.limit(session['items_per_page'])
         prodlist = list(map(self.prepproduct, list(querycursor)))
+        # This will assign the variables 'pagepath' and 'category' values for the recommendation request
+        # Case 1: 'category' is the smallest (i*sub_)category
         if len(nononescats) > 1:
             pagepath = "/producten/"+("/".join(nononescats))+"/"
             category = nononescats[-1] + "@" + str(len(nononescats))
+        # Case 2: 'category' is the only entry and thus a category
         elif len(nononescats) == 1:
             pagepath = "/producten/" + nononescats[0] + "/"
             category = nononescats[0] + "@1"
+        # Case 3: A page where all products could appear
         else:
             pagepath = "/producten/"
             category = "None"
@@ -294,6 +300,7 @@ class HUWebshop(object):
         """ This function renders the product detail page based on the product
         id provided. """
         product = self.database.products.find_one({"_id": str(productid)})
+        # The '@0' indicates to the recommendation engine that it is a product_id
         product_id_url = str(productid) + "@0"
         return self.renderpackettemplate('productdetail.html', {
             'product': product,
@@ -321,8 +328,10 @@ class HUWebshop(object):
             i.append(product)
         if products == {}:
             category = "None"
+        # Set 'category' to the product_id + '@0' to indicate to the recommendation engine that is a product_id
         else:
             category = self.encodecategory(max(products, key=products.get)) + "@0"
+        # The recommendation engine uses '/' to seperate variables, so we replace them here
         if '/' in category:
             s = list(category)
             s[category.index('/')] = "~"
@@ -332,6 +341,7 @@ class HUWebshop(object):
             'r_products': self.recommendations(4, category, list(self.recommendationtypes.keys())[3]),
             'r_type': list(self.recommendationtypes.keys())[3],
             'r_string': list(self.recommendationtypes.values())[3],
+            # Second row of recommendations
             'r_products2': self.recommendations(4, category, list(self.recommendationtypes.keys())[4]),
             'r_type2': list(self.recommendationtypes.keys())[4],
             'r_string2': list(self.recommendationtypes.values())[4]

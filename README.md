@@ -141,6 +141,8 @@ To run the recommendation service, you will need to open a terminal window and n
 
     set FLASK_APP=huw_recommend.py
     python -m flask run --port 5001
+    OR
+    python -m flask --app huw_recommend run --port 5001
 
 Depending on your system and type of terminal, these commands may need to be slightly different. Refer to the Flask Quickstart for more information on these commands.
 
@@ -156,6 +158,8 @@ Now, let's run the webshop! You will need to open **another, separate terminal w
 
     set FLASK_APP=huw.py
     python -m flask run
+    OR
+    python -m flask --app huw run --port 5000
 
 When you run this program for the first time, it may take a while to start up. It should be faster on future iterations. You will know if/when the code is running when its terminal shows the following message:
 

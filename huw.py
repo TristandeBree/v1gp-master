@@ -36,7 +36,7 @@ class HUWebshop(object):
 
     recommendationtypes = {'popular': "Anderen kochten ook", 'similar': "Soortgelijke producten",
                            'combination': 'Combineert goed met',
-                           'behaviour': 'Passend bij uw gedrag', 'personal': 'Persoonlijk aanbevolen'}
+                           'behaviour': 'Eerder bekeken', 'personal': 'Persoonlijk aanbevolen'}
 
     """ ..:: Initialization and Category Index Functions ::.. """
 

@@ -98,31 +98,23 @@ class Recom(Resource):
         :vars: class self, database cursor, product id, amount of desired recommendations
         :returns: list of product-id's with length maximum of count
         """
-        # This query returns the 100 most recent sessions in which the product was purchased
-        cursor.execute(f'''SELECT orders.sessionssession_id, ses.end_session
-                           FROM orders
-                           JOIN sessions AS ses ON ses.session_id = orders.sessionssession_id
-                           WHERE orders.productproduct_id = '{productid}'
-                           ORDER BY ses.end_session DESC
-                           LIMIT 100000;
-        ''')
-        sessions_bought_product = [row[0] for row in cursor.fetchall()]
-        relevant_sessions = ''''''
-        for session in sessions_bought_product:
-            if relevant_sessions == '''''':
-                relevant_sessions += f'''orders.sessionssession_id = '{session}' '''
-            else:
-                relevant_sessions += f'''OR orders.sessionssession_id = '{session}' '''
-        if relevant_sessions != '''''':
-            relevant_sessions = '''AND (''' + relevant_sessions + ''')'''
+        # This query returns the
         cursor.execute(f'''SELECT orders.productproduct_id, COUNT(orders.productproduct_id)
                            FROM orders
                            JOIN product AS prod ON orders.productproduct_id = prod.product_id
                            WHERE prod.recommendable = True AND NOT orders.productproduct_id = '{productid}' 
-                                {relevant_sessions}
+                                AND sessionssession_id IN 
+                                    (SELECT orders.sessionssession_id
+                                     FROM orders
+                                     JOIN sessions AS ses ON ses.session_id = orders.sessionssession_id
+                                     WHERE orders.productproduct_id = '{productid}'
+                                     ORDER BY ses.end_session DESC
+                                     LIMIT 100000
+                                     )
                            GROUP BY orders.productproduct_id
                            ORDER BY count DESC
                            LIMIT {3*count};
+        
         ''')
         combination_products = cursor.fetchall()
         # Return the list with the requested amount of productid's or less if there are not enough items

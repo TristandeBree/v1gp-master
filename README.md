@@ -1,10 +1,10 @@
 # huwebshop
 Git voor het HU Webshop recommendation engine project. 
 #### Project auteurs: 
-Tristan de Bree \
-Frank van Leijsen \
-Jeroen Muller \
-Filip Steenbergen 
+Tristan de Bree - 1843882 \
+Frank van Leijsen - 1842636 \
+Jeroen Muller - 1837000 \
+Filip Steenbergen - 1831554
 ## Introduction
 
 This project was created to assist the students of TAAI-V1GP-19 (Group Project) with using the provided database of real-life products, sessions and anonymized profiles. Last year (2018-2019), students were given this same data and asked to create a recommendation service. However, getting the database to a visibly workable state proved to be such a difficult task, that much of the course's runtime was dedicated to that alone. We hope that by removing that roadblock in advance, students can dedicate their time to the actually interesting part of the course.

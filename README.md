@@ -1,18 +1,37 @@
 # huwebshop
-Git for the HU Webshop project.
-
+Git voor het HU Webshop recommendation engine project. 
+#### Project auteurs: 
+Tristan de Bree - 1843882 \
+Frank van Leijsen - 1842636 \
+Jeroen Muller - 1837000 \
+Filip Steenbergen - 1831554
 ## Introduction
 
-This project was created to assist the students of TAAI-V1GP-19 (Group Project) with using the provided database of real-life products, sessions and anonymized profiles. Last year (2018-2019), students were given this same data and asked to create a recommendation service. However, getting the database to a visibly workable state proved to be such a difficult task, that much of the course's runtime was dedicated to that alone. We hope that by removing that roadblock in advance, students can dedicate their time to the actually interesting part of the course.
+In dit project gaan wij als team Alpha aan de slag om in de onderstaande webshop, recommendation engines toe te voegen. 
 
-The project contains the following:
+Eerst is het belangrijk om de webshop zelf draaiend te krijgen, dit doe je om vanaf het stukje "Requirements" de stappen te volgen.
 
-1. **An example webshop**, which can connect to a preconfigured database, either local or remote, and display basic pages such as product listing pages, product detail pages and a rudimentary shopping cart;
-2. **A dummy recommendation service**, which uses the same database to provide recommendations through a REST interface, although at the moment, it simply returns randomly chosen products;
+Zelf hebben wij vijf algoritmes bedacht om de recommendations op te bouwen. De recommendations die wij dus zelf bedacht hebben zijn: Popular, Similar, Combination, Behaviour, Personal.
 
-In the following sections, we will go into more detail on the requirements for setting up this project on your own device, how to run it, and what it should look like.
+Deze leggen wij uit in het stukje: "Algoritmes".
 
-The author of this project is Nick Roumimper (nick.roumimper@hu.nl). If there are any questions about this project that this Readme can't answer (which may very well happen), please feel free to contact me.
+## Sources:
+
+- Nick Roumimper: https://gitlab.com/hu-hbo-ict/ai/v1gp; 
+https://gitlab.com/nickroumimper
+
+
+## Algoritmes
+
+**Popular**: Het popular algoritme maakt gebruik van de meest verkochte items per categorie.
+
+**Similar**: Dit algoritme kijkt naar de vergelijkbare producten.
+
+**Combination**: Combination kijkt naar producten die andere samen met dit product kochten.
+
+**Behaviour**: Voor dit algoritme houden wij de producten vast die de klant eerder heeft bekeken.
+
+**personal**: Dit is gebasseerd op wat de klant eerder heeft bekeken en/of gekocht. 
 
 ## Requirements
 

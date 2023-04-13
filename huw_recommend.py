@@ -86,6 +86,7 @@ class Recom(Resource):
                              AND sub_category = '{columns[1]}'
                              AND (brand = '{columns[0]}' 
                              OR COALESCE(brand, LEFT(product_name, 3)) = LEFT('{columns[2]}', 3))
+                             AND NOT {type} = '{id}'
                            ORDER BY RANDOM()
                            LIMIT {count};
         ''')

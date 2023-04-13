@@ -103,7 +103,7 @@ class Recom(Resource):
                            JOIN sessions AS ses ON ses.session_id = orders.sessionssession_id
                            WHERE orders.productproduct_id = '{productid}'
                            ORDER BY ses.end_session DESC
-                           LIMIT 100;
+                           LIMIT 100000;
         ''')
         sessions_bought_product = [row[0] for row in cursor.fetchall()]
         relevant_sessions = ''''''
@@ -142,44 +142,29 @@ class Recom(Resource):
 
     def personal(self, cursor, profile_id, count):
         """This function will return a list of product-id's that are based on the profile-id's preferences,
-        and have currently an action.
+        and are currently on sale.
         :vars: class self, database cursor, profile id, amount of desired recommendations
         :returns: list of product-id's with length maximum of count
         """
-        # This query returns all the column from the table 'product' in the database
-        cursor.execute(f'''SELECT column_name
-                           FROM INFORMATION_SCHEMA.COLUMNS
-                           WHERE TABLE_NAME = 'product';
-        ''')
-        existing_product_columns = [row[0] for row in cursor.fetchall()]
-        # This query returns all the preference associated with a profile-id
-        cursor.execute(f'''SELECT preference_type, preference_name
+        # This query returns the products that are most consistent with the preferences of the user based
+        # on their profile_id
+        cursor.execute(f'''SELECT prod.product_id, COUNT(prod.product_id)
                            FROM profile prof
                            JOIN identifier AS iden ON prof.profile_id = iden.profileprofile_id
                            JOIN sessions AS ses ON iden.bu_id = ses.bu_id
                            JOIN preferences AS pref ON ses.session_id = pref.Sessionssession_id
-                           WHERE prof.profile_id = '{profile_id}'
-                           LIMIT 100;
-        ''')
-        preferences = [[row[0], row[1]] for row in cursor.fetchall()]
-        # This makes part of a SQL-statement to include the preferences of the profile-id in the next statement
-        preferred = ''''''
-        for preference in preferences:
-            if preference[0] in existing_product_columns:
-                if preferred == '''''':
-                    preferred += f''' {preference[0]} = '{preference[1]}' '''
-                else:
-                    preferred += f'''OR {preference[0]} = '{preference[1]}' '''
-        if preferred != '''''':
-            preferred = '''AND (''' + preferred + ''')'''
-        # This query returns product-id's that have one of the preferences and an active action
-        cursor.execute(f'''SELECT product_id
-                           FROM product
-                           WHERE recommendable = True AND (folder_active = 'Enabled' 
-                                OR discount IS NOT Null)
-                                {preferred}
+                           JOIN product AS prod ON (pref.preference_name = prod.category
+                                                OR pref.preference_name = prod.sub_category
+                                                OR pref.preference_name = prod.sub_sub_category
+                                                OR pref.preference_name = prod.brand
+                                                OR pref.preference_name = prod.gender
+                                                OR pref.preference_name = prod.product_type)
+                           WHERE prof.profile_id = '{profile_id}' AND recommendable = True 
+                                AND (folder_active = 'Enabled' OR discount IS NOT Null)
+                           GROUP BY prod.product_id
+                           ORDER BY COUNT DESC
                            LIMIT {3*count};
-                            ''')
+        ''')
         personal_products = cursor.fetchall()
         return sample(personal_products, count)
 

@@ -66,14 +66,14 @@ class Recom(Resource):
             decode_dict[self.encodecategory(category)] = category
         return decode_dict
 
-    def popular(self, cursor, cat_type, cat_name, count):
+    def popular(self, cursor, cat_type, cat_name, count, avoid_dupli=''''''):  # avoid_dupli=''''''   {avoid_dupli}
         """This function will return a requested amount of product_id's that are most ordered.
-        :vars: self, database cursor, category type(s), category name(s), amount of recommendations(int)
+        :vars: self, database cursor, category type(s), category name(s), amount of recommendations(int), SQL(s)
         :returns: list of tuples(l)"""
         cursor.execute(f'''SELECT orders.productproduct_id, COUNT(orders.productproduct_id)
                            FROM orders
-                           JOIN product on orders.productproduct_id = product.product_id
-                           WHERE recommendable = True AND {cat_type} = '{cat_name}'
+                           JOIN product ON orders.productproduct_id = product.product_id
+                           WHERE recommendable = True AND {cat_type} = '{cat_name}' {avoid_dupli}
                            GROUP BY orders.productproduct_id
                            ORDER BY count DESC
                            LIMIT {3*count};
@@ -247,7 +247,10 @@ class Recom(Resource):
                                    WHERE product_id = '{category_name_dec}' 
                 """)
                 category = cursor.fetchall()
-                prod_ids2 = self.popular(cursor, 'category', category[0][0], 4 - len(prodids))
+                avoid_duplicate = ''''''
+                for prod in prodids:
+                    avoid_duplicate += f'''AND NOT product.product_id = '{prod}' '''
+                prod_ids2 = self.popular(cursor, 'category', category[0][0], 4 - len(prodids), avoid_duplicate)
             else:
                 prod_ids2 = self.popular(cursor, category_type, category_name_dec, 4 - len(prodids))
             # Add the remaining product_id's to the prodid list

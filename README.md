@@ -23,9 +23,15 @@ https://gitlab.com/nickroumimper
 
 ## Algoritmes
 
-**Popular**: Het popular algoritme maakt gebruik van de populairste items. De populairste worden bepaald op basis van het aantal verkopen hiervan. Per categorie wordt getoond wat het populairste is.  
+**Popular**: Het popular algoritme maakt gebruik van de meest verkochte items per categorie.
 
-**Similar**: Dit algoritme kijkt naar de vergelijkbare producten, van bijvoorbeeld hetzelfde merk.
+**Similar**: Dit algoritme kijkt naar de vergelijkbare producten.
+
+**Combination**: Combination kijkt naar producten die andere samen met dit product kochten.
+
+**Behaviour**: Voor dit algoritme houden wij de producten vast die de klant eerder heeft bekeken.
+
+**personal**: Dit is gebasseerd op wat de klant eerder heeft bekeken en/of gekocht. 
 
 ## Requirements
 
